@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Career Marketplace 平台知識大挑戰</title>
+    <title>Career Marketplace 知識大挑戰</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -17,244 +17,235 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 1);
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.5);
+            width: 100%;
+            max-width: 450px;
         }
 
         .option-btn {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid #f1f5f9;
-            position: relative;
         }
 
-        /* 懸停效果：使用企業黃 */
         .option-btn:hover:not(.correct):not(.wrong) {
             border-color: #ffcc00;
             background-color: #fffbeb;
-            transform: translateY(-2px);
+            transform: scale(1.02);
         }
 
-        /* 正確顏色 */
         .option-btn.correct {
             background-color: #10b981 !important;
             color: white !important;
             border-color: #059669 !important;
         }
 
-        /* 錯誤顏色：使用企業紅 */
         .option-btn.wrong {
             background-color: #d40511 !important;
             color: white !important;
             border-color: #9b1c1c !important;
         }
 
-        .progress-bar-container {
-            height: 8px;
-            background-color: #f1f5f9;
-        }
-
         .progress-bar-fill {
             height: 100%;
-            background: #ffcc00; /* 進度條使用企業黃 */
-            transition: width 0.5s ease-in-out;
+            background: #ffcc00;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(212, 5, 17, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(212, 5, 17, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 5, 17, 0); }
+        }
+
+        .btn-active-red {
+            animation: pulse-red 2s infinite;
+        }
+
+        /* 答錯時的震動效果 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
         }
-
-        .shake {
-            animation: shake 0.2s ease-in-out 0s 2;
-        }
-
-        /* 企業紅按鈕風格 */
-        .btn-primary {
-            background-color: #d40511;
-        }
-        .btn-primary:hover {
-            background-color: #b3040e;
-        }
-        .text-enterprise-red {
-            color: #d40511;
-        }
+        .shake { animation: shake 0.4s ease-in-out; }
     </style>
 </head>
 <body>
 
-<div id="app" class="w-full max-w-md glass-card flex flex-col min-h-[550px]">
+<div id="app" class="glass-card flex flex-col min-h-[620px]">
     
-    <!-- 頂部進度條 -->
-    <div id="header-progress" class="hidden">
-        <div class="progress-bar-container">
+    <!-- 頂部狀態列 -->
+    <div id="game-header" class="hidden">
+        <div class="h-2 bg-gray-100 w-full">
             <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
         </div>
-        <div class="px-6 py-3 flex justify-between items-center text-xs font-bold text-gray-400">
-            <span id="category-name" class="text-enterprise-red font-bold">主題挑戰</span>
-            <span class="bg-gray-100 px-2 py-1 rounded">問題 <span id="current-idx">1</span> / <span id="total-idx">3</span></span>
+        <div class="px-6 py-4 flex justify-between items-center border-bottom">
+            <span class="text-[#d40511] font-black tracking-tighter italic text-lg">CMP QUIZ</span>
+            <span class="text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border">
+                題目 <span id="current-idx">1</span> / <span id="total-idx">5</span>
+            </span>
         </div>
     </div>
 
     <div class="p-8 flex-grow flex flex-col">
-        <!-- 開始畫面 -->
+        <!-- 開始主畫面 -->
         <div id="start-screen" class="text-center my-auto">
-            <div class="w-24 h-24 bg-[#ffcc00] text-white rounded-3xl flex items-center justify-center mx-auto mb-8 transform rotate-12 shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="#d40511">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <div class="relative w-32 h-32 mx-auto mb-8">
+                <div class="absolute inset-0 bg-[#ffcc00] rounded-full opacity-20 animate-ping"></div>
+                <div class="relative bg-[#ffcc00] text-white w-32 h-32 rounded-[2.5rem] flex items-center justify-center shadow-xl rotate-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="#d40511">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
             </div>
-            <h1 class="text-3xl font-black text-gray-800 mb-3">Career Marketplace 知識大挑戰</h1>
-            <p class="text-gray-500 mb-10 leading-relaxed font-medium">歡迎參加測驗<br>點擊下方按鈕開始答題</p>
             
-            <div id="category-buttons" class="space-y-4">
-                <!-- 類別按鈕由 JS 生成 -->
+            <h1 class="text-3xl font-black text-gray-800 mb-4 tracking-tight">Career Marketplace知多少</h1>
+            <p class="text-gray-500 mb-10 leading-relaxed">
+                2026 全面啟動！<br>
+                測試你對 Career Marketplace 的掌握度
+            </p>
+            
+            <button onclick="startGame()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl shadow-red-200 hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
+                立即開始挑戰
+            </button>
+        </div>
+
+        <!-- 遊戲主畫面 -->
+        <div id="quiz-screen" class="hidden flex-grow flex flex-col">
+            <div class="mb-8">
+                <h2 id="question-text" class="text-2xl font-extrabold text-gray-800 leading-tight">
+                    載入中...
+                </h2>
+            </div>
+
+            <div id="options-grid" class="space-y-4 mt-auto">
+                <!-- 選項 -->
             </div>
         </div>
 
-        <!-- 遊戲主體 -->
-        <div id="quiz-screen" class="hidden my-auto">
-            <h2 id="question-text" class="text-2xl font-bold text-gray-800 mb-10 leading-snug">
-                載入中...
-            </h2>
-
-            <div id="options-grid" class="space-y-4">
-                <!-- 選項按鈕由 JS 生成 -->
-            </div>
-        </div>
-
-        <!-- 結果畫面 -->
+        <!-- 成績結算頁面 -->
         <div id="result-screen" class="hidden text-center my-auto">
-            <div id="result-emoji" class="text-7xl mb-6">🏆</div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">測驗完成！</h2>
-            <p id="result-evaluation" class="text-gray-500 mb-8">您的職涯知識儲備量為</p>
+            <div id="result-badge" class="text-7xl mb-4">🏆</div>
+            <h2 class="text-3xl font-black text-gray-800 mb-2">測驗完成！</h2>
+            <p id="result-evaluation" class="text-gray-500 mb-6 font-medium">您的職涯掌握實力為</p>
             
-            <div class="inline-block bg-yellow-50 rounded-full px-10 py-6 mb-10 border-2 border-[#ffcc00]">
+            <div class="bg-yellow-50 rounded-[2rem] py-6 mb-6 border-4 border-[#ffcc00] shadow-inner">
                 <div id="final-score" class="text-6xl font-black text-[#d40511]">0</div>
-                <div class="text-yellow-600 font-bold text-sm uppercase mt-1 tracking-tighter">Total Score</div>
+                <div class="text-yellow-600 font-bold text-xs uppercase mt-1">Total Points</div>
             </div>
 
-            <button onclick="location.reload()" class="w-full btn-primary text-white py-4 rounded-2xl font-bold hover:opacity-90 transition shadow-xl shadow-red-100 active:scale-95">
-                再測一次
+            <!-- 抽獎導引文字 -->
+            <div class="bg-red-50 border-l-4 border-[#d40511] p-4 mb-8 text-left">
+                <p class="text-[#d40511] font-bold text-sm leading-relaxed">
+                    📸 歡迎截圖分享至 Smart Connect，就有機會抽中精美小禮！
+                </p>
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-black transition shadow-xl active:scale-95">
+                再測一次，挑戰滿分
             </button>
         </div>
     </div>
     
-    <div class="p-6 text-center text-gray-400 text-xs border-t border-gray-50 font-bold uppercase tracking-widest">
-        Career Marketplace
+    <div class="p-6 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.2em] border-t border-gray-50">
+        Career Marketplace • Future Ready
     </div>
 </div>
 
 <script>
-    /** * [題目設定區] 
-     **/
-    const config = {
-        categories: {
-            "cmp_basics": {
-                name: "Career Marketplace 平台知識挑戰",
-                color: "btn-primary",
-                questions: [
-                    { 
-                        q: "1. 請問 CMP 的全名是什麼？", 
-                        o: ["A. Career Marketplace", "B. Car Marketplace", "C. Career Market Platform"], 
-                        a: 0 
-                    },
-                    { 
-                        q: "2. 請問你在 CMP 上面找不到什麼？", 
-                        o: ["A. 適合的 elearning", "B. DHL 內部職缺", "C. 我的個人職涯檔案", "D. 美食地圖"], 
-                        a: 3 
-                    },
-                    { 
-                        q: "3. 請問 CMP 有什麼特色？", 
-                        o: ["A. 一站式的職涯發展平台", "B. 直覺簡單的操作頁面", "C. 以上皆是"], 
-                        a: 2 
-                    }
-                ]
-            }
+    // 題庫設定區
+    const quizData = [
+        { 
+            q: "1. Career Marketplace (CMP) 預計在什麼時候全面取代 My Talent World？", 
+            o: ["A. 2025 Q4", "B. 2026 Q2", "C. 2027 Q1"], 
+            a: 1 
+        },
+        { 
+            q: "2. Career Marketplace 的兩大核心特色是什麼？", 
+            o: ["A. 技能導向方法 & 個人化專屬成長工具箱", "B. 全球職缺搜尋 & 薪資透明化", "C. 即時績效獎金 & 遠距工作平台"], 
+            a: 0 
+        },
+        { 
+            q: "3. Career Marketplace 提供哪三大核心功能？", 
+            o: ["A. 推薦旅遊、推薦餐廳、推薦電影", "B. 推薦主管、推薦團隊、推薦辦公室", "C. 推薦職缺、推薦學習課程、推薦技能"], 
+            a: 2 
+        },
+        { 
+            q: "4. Career Marketplace 的登入方式是什麼？", 
+            o: ["A. 進到 DHL 官網", "B. 透過 Smart Connect App 或網頁登入，在「應用程式」內", "C. 用社群帳號登入"], 
+            a: 1 
+        },
+        { 
+            q: "5. Career Marketplace 為同仁帶來的好處包括哪些？", 
+            o: ["A. 更高透明度", "B. 掌握職涯方向", "C. 探索與發展", "D. 以上皆是"], 
+            a: 3 
         }
-    };
+    ];
 
-    let currentQuestions = [];
     let currentIndex = 0;
     let score = 0;
     let isLocked = false;
 
-    window.onload = () => {
-        const catContainer = document.getElementById('category-buttons');
-        Object.keys(config.categories).forEach(key => {
-            const cat = config.categories[key];
-            const btn = document.createElement('button');
-            btn.className = `${cat.color} w-full text-white py-5 rounded-2xl font-bold shadow-lg shadow-red-100 hover:scale-[1.02] transition active:scale-95`;
-            btn.innerText = cat.name;
-            btn.onclick = () => startGame(key);
-            catContainer.appendChild(btn);
-        });
-    };
-
-    function startGame(key) {
-        currentQuestions = config.categories[key].questions;
-        document.getElementById('category-name').innerText = config.categories[key].name;
-        document.getElementById('total-idx').innerText = currentQuestions.length;
-        
+    function startGame() {
+        document.getElementById('total-idx').innerText = quizData.length;
         document.getElementById('start-screen').classList.add('hidden');
-        document.getElementById('header-progress').classList.remove('hidden');
+        document.getElementById('game-header').classList.remove('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
-        
         showQuestion();
     }
 
     function showQuestion() {
         isLocked = false;
-        const q = currentQuestions[currentIndex];
+        const currentQ = quizData[currentIndex];
         
         document.getElementById('current-idx').innerText = currentIndex + 1;
-        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('question-text').innerText = currentQ.q;
         
-        const progress = (currentIndex / currentQuestions.length) * 100;
+        // 更新進度條
+        const progress = (currentIndex / quizData.length) * 100;
         document.getElementById('progress-fill').style.width = `${progress}%`;
 
         const optionsGrid = document.getElementById('options-grid');
         optionsGrid.innerHTML = '';
 
-        q.o.forEach((option, index) => {
+        currentQ.o.forEach((option, index) => {
             const btn = document.createElement('button');
-            btn.className = 'option-btn w-full p-5 rounded-2xl text-left font-bold text-gray-600 bg-white shadow-sm';
+            btn.className = 'option-btn w-full p-5 rounded-2xl text-left font-bold text-gray-700 bg-white shadow-sm';
             btn.innerText = option;
-            btn.onclick = () => handleAnswer(index, btn);
+            btn.onclick = () => checkAnswer(index, btn);
             optionsGrid.appendChild(btn);
         });
     }
 
-    function handleAnswer(selectedIndex, btn) {
+    function checkAnswer(selectedIndex, btn) {
         if (isLocked) return;
         isLocked = true;
 
-        const correctIndex = currentQuestions[currentIndex].a;
+        const correctIndex = quizData[currentIndex].a;
         const app = document.getElementById('app');
 
         if (selectedIndex === correctIndex) {
             btn.classList.add('correct');
-            score += (100 / currentQuestions.length);
+            score += (100 / quizData.length);
         } else {
             btn.classList.add('wrong');
             app.classList.add('shake');
-            setTimeout(() => app.classList.remove('shake'), 500);
+            setTimeout(() => app.classList.remove('shake'), 400);
             
-            // 標示出正確答案
-            const allBtns = document.querySelectorAll('.option-btn');
-            allBtns[correctIndex].classList.add('correct');
+            // 標示正確答案
+            document.querySelectorAll('.option-btn')[correctIndex].classList.add('correct');
         }
 
         setTimeout(() => {
             currentIndex++;
-            if (currentIndex < currentQuestions.length) {
+            if (currentIndex < quizData.length) {
                 showQuestion();
             } else {
                 showFinalResult();
@@ -264,24 +255,24 @@
 
     function showFinalResult() {
         document.getElementById('quiz-screen').classList.add('hidden');
-        document.getElementById('header-progress').classList.add('hidden');
+        document.getElementById('game-header').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
         
         const finalScore = Math.round(score);
         document.getElementById('final-score').innerText = finalScore;
 
-        const eval = document.getElementById('result-evaluation');
-        const emoji = document.getElementById('result-emoji');
+        const evalText = document.getElementById('result-evaluation');
+        const badge = document.getElementById('result-badge');
 
-        if (finalScore >= 100) {
-            emoji.innerText = '🥇';
-            eval.innerText = '太棒了！您已經完全掌握 Career Marketplace 了！';
+        if (finalScore === 100) {
+            badge.innerText = '👑';
+            evalText.innerText = '完美掌握！您是 CMP 的職場先驅！';
         } else if (finalScore >= 60) {
-            emoji.innerText = '🥈';
-            eval.innerText = '不錯的成績，再多了解一下平台功能會更好喔！';
+            badge.innerText = '👍';
+            evalText.innerText = '做得好！您已對職涯新工具備初步認識。';
         } else {
-            emoji.innerText = '💡';
-            eval.innerText = '別灰心，快登入 Career Marketplace 探索更多職涯寶藏吧！';
+            badge.innerText = '📝';
+            evalText.innerText = '別擔心，快去 Smart Connect 探索 CMP 吧！';
         }
     }
 </script>
