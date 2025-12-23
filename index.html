@@ -10,8 +10,7 @@
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            /* 將背景改為公司品牌黃色 #ffcc00 */
-            background-color: #ffcc00;
+            background-color: #ffcc00; 
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -23,11 +22,11 @@
         .glass-card {
             background: #ffffff;
             border-radius: 28px;
-            /* 調整陰影顏色，使其在黃色背景下更自然 */
             box-shadow: 0 25px 50px -12px rgba(184, 147, 0, 0.4);
             overflow: hidden;
             width: 100%;
             max-width: 450px;
+            position: relative;
         }
 
         .option-btn {
@@ -55,7 +54,6 @@
 
         .progress-bar-fill {
             height: 100%;
-            /* 進度條使用公司品牌紅，在白色卡片中更醒目 */
             background: #d40511;
             transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
@@ -70,7 +68,6 @@
             animation: pulse-red 2s infinite;
         }
 
-        /* 答錯時的震動效果 */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-8px); }
@@ -83,68 +80,60 @@
 
 <div id="app" class="glass-card flex flex-col min-h-[620px]">
     
-    <!-- 頂部狀態列 -->
     <div id="game-header" class="hidden">
         <div class="h-2 bg-gray-100 w-full">
             <div id="progress-fill" class="progress-bar-fill" style="width: 0%"></div>
         </div>
-        <div class="px-6 py-4 flex justify-between items-center border-bottom">
-            <span class="text-[#d40511] font-black tracking-tighter italic text-lg">CMP QUIZ</span>
+        <div class="px-6 py-4 flex justify-between items-center border-b">
+            <span class="text-[#d40511] font-black italic text-lg tracking-tighter">CMP QUIZ</span>
             <span class="text-xs font-bold text-gray-400 bg-gray-50 px-3 py-1 rounded-full border">
-                題目 <span id="current-idx">1</span> / <span id="total-idx">5</span>
+                題目 <span id="current-idx">1</span> / 5
             </span>
         </div>
     </div>
 
-    <div class="p-8 flex-grow flex flex-col">
-        <!-- 開始主畫面 -->
-        <div id="start-screen" class="text-center my-auto">
-            <div class="relative w-32 h-32 mx-auto mb-8">
+    <div class="p-8 flex-grow flex flex-col justify-center">
+        <div id="start-screen" class="text-center">
+            <div class="relative w-28 h-28 mx-auto mb-8">
                 <div class="absolute inset-0 bg-[#d40511] rounded-full opacity-10 animate-ping"></div>
-                <div class="relative bg-[#d40511] text-white w-32 h-32 rounded-[2.5rem] flex items-center justify-center shadow-xl rotate-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="#ffcc00">
+                <div class="relative bg-[#d40511] text-white w-28 h-28 rounded-3xl flex items-center justify-center shadow-xl transform rotate-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="#ffcc00">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
             </div>
             
-            <h1 class="text-3xl font-black text-gray-800 mb-4 tracking-tight">Career Marketplace知多少</h1>
-            <p class="text-gray-500 mb-10 leading-relaxed">
+            <h1 class="text-3xl font-black text-gray-800 mb-4 tracking-tight">Career Marketplace 知多少</h1>
+            <p class="text-gray-500 mb-10 leading-relaxed font-medium">
                 2026 全面啟動！<br>
-                測試你對 Career Marketplace 的掌握度
+                測試你對新平台的掌握程度
             </p>
             
-            <button onclick="startGame()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl shadow-red-200 hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
+            <button onclick="startGame()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
                 立即開始挑戰
             </button>
         </div>
 
-        <!-- 遊戲主畫面 -->
         <div id="quiz-screen" class="hidden flex-grow flex flex-col">
-            <div class="mb-8">
-                <h2 id="question-text" class="text-2xl font-extrabold text-gray-800 leading-tight">
+            <div class="mb-10">
+                <h2 id="question-text" class="text-2xl font-black text-gray-800 leading-snug">
                     載入中...
                 </h2>
             </div>
-
-            <div id="options-grid" class="space-y-4 mt-auto">
-                <!-- 選項 -->
-            </div>
+            <div id="options-grid" class="space-y-4 mt-auto"></div>
         </div>
 
-        <!-- 成績結算頁面 -->
-        <div id="result-screen" class="hidden text-center my-auto">
+        <div id="result-screen" class="hidden text-center">
             <div id="result-badge" class="text-7xl mb-4">🏆</div>
             <h2 class="text-3xl font-black text-gray-800 mb-2">測驗完成！</h2>
             <p id="result-evaluation" class="text-gray-500 mb-6 font-medium">您的職涯掌握實力為</p>
             
-            <div class="bg-yellow-50 rounded-[2rem] py-6 mb-6 border-4 border-[#ffcc00] shadow-inner">
-                <div id="final-score" class="text-6xl font-black text-[#d40511]">0</div>
-                <div class="text-yellow-600 font-bold text-xs uppercase mt-1">Total Points</div>
+            <div class="bg-yellow-50 rounded-[2.5rem] py-8 mb-6 border-4 border-[#ffcc00] shadow-inner">
+                <div id="final-score" class="text-7xl font-black text-[#d40511]">0</div>
+                <div class="text-yellow-600 font-bold text-sm uppercase mt-1 tracking-widest">Total Score</div>
             </div>
 
-            <!-- 抽獎導引文字 -->
-            <div class="bg-red-50 border-l-4 border-[#d40511] p-4 mb-8 text-left">
+            <div class="bg-red-50 border-l-4 border-[#d40511] p-4 mb-8 text-left rounded-r-lg">
                 <p class="text-[#d40511] font-bold text-sm leading-relaxed">
                     📸 歡迎截圖分享至 Smart Connect，就有機會抽中精美小禮！
                 </p>
@@ -156,13 +145,22 @@
         </div>
     </div>
     
-    <div class="p-6 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.2em] border-t border-gray-50">
+    <div class="p-6 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.25em] border-t border-gray-50">
         Career Marketplace • Future Ready
     </div>
 </div>
 
 <script>
-    // 題庫設定區
+    const BGM_SRC = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+    const WIN_SRC = 'https://actions.google.com/sounds/v1/human_voices/crowd_cheer.ogg';
+
+    const mainBGM = new Audio(BGM_SRC);
+    const winSfx = new Audio(WIN_SRC);
+
+    mainBGM.loop = true;
+    mainBGM.volume = 0.25;
+    winSfx.volume = 0.8;
+
     const quizData = [
         { 
             q: "1. Career Marketplace (CMP) 預計在什麼時候全面取代 My Talent World？", 
@@ -196,7 +194,11 @@
     let isLocked = false;
 
     function startGame() {
-        document.getElementById('total-idx').innerText = quizData.length;
+        mainBGM.load();
+        winSfx.load();
+        
+        mainBGM.play().catch(e => console.log("BGM 播放受阻，屬正常瀏覽器行為"));
+
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-header').classList.remove('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
@@ -206,11 +208,9 @@
     function showQuestion() {
         isLocked = false;
         const currentQ = quizData[currentIndex];
-        
         document.getElementById('current-idx').innerText = currentIndex + 1;
         document.getElementById('question-text').innerText = currentQ.q;
         
-        // 更新進度條
         const progress = (currentIndex / quizData.length) * 100;
         document.getElementById('progress-fill').style.width = `${progress}%`;
 
@@ -231,17 +231,13 @@
         isLocked = true;
 
         const correctIndex = quizData[currentIndex].a;
-        const app = document.getElementById('app');
-
         if (selectedIndex === correctIndex) {
             btn.classList.add('correct');
             score += (100 / quizData.length);
         } else {
             btn.classList.add('wrong');
-            app.classList.add('shake');
-            setTimeout(() => app.classList.remove('shake'), 400);
-            
-            // 標示正確答案
+            document.getElementById('app').classList.add('shake');
+            setTimeout(() => document.getElementById('app').classList.remove('shake'), 400);
             document.querySelectorAll('.option-btn')[correctIndex].classList.add('correct');
         }
 
@@ -256,15 +252,20 @@
     }
 
     function showFinalResult() {
+        mainBGM.pause();
+        mainBGM.currentTime = 0;
+        
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('game-header').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
         
+        winSfx.currentTime = 0;
+        winSfx.play().catch(e => console.log("音效播放受限"));
+
         const finalScore = Math.round(score);
         document.getElementById('final-score').innerText = finalScore;
-
-        const evalText = document.getElementById('result-evaluation');
         const badge = document.getElementById('result-badge');
+        const evalText = document.getElementById('result-evaluation');
 
         if (finalScore === 100) {
             badge.innerText = '👑';
@@ -274,7 +275,7 @@
             evalText.innerText = '做得好！您已對職涯新工具備初步認識。';
         } else {
             badge.innerText = '📝';
-            evalText.innerText = '別擔心，快去 Smart Connect 探索 CMP 吧！';
+            evalText.innerText = '別擔心，快去 Smart Connect 探索吧！';
         }
     }
 </script>
