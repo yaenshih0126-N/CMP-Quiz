@@ -171,8 +171,8 @@
 </div>
 
 <script>
-    // 替換成您的 Google Apps Script 部署 URL
-    const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; 
+    // 已填入您提供的 Google Apps Script URL
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyypniyCvPAY-ooVH_UOBmEvr46yyK366Or1dZ4wS2vs4DQUf9CPCdUMYlSU1gvmM6g/exec'; 
 
     const BGM_SRC = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
     const WIN_SRC = 'https://actions.google.com/sounds/v1/human_voices/crowd_cheer.ogg';
@@ -324,23 +324,28 @@
             staffId: userData.id,
             name: userData.name,
             score: Math.round(score),
-            timestamp: new Date().toLocaleString()
+            timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
         };
 
-        // 這裡示範 fetch 邏輯，需配合後端 script 使用
         try {
-            // 注意：跨網域提交通常需要使用 Google Apps Script 的 doPost 或模擬表單提交
-            console.log("提交數據:", payload);
+            // 使用 fetch 發送 POST 請求
+            // mode: 'no-cors' 適合發送資料到 GAS，雖然拿不到回傳值但能確保資料送出
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
             
-            // 延遲模擬網路請求
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
+            // 因為是 no-cors，我們假設只要 fetch 沒拋出例外就是成功
             status.innerText = "✅ 提交成功！祝您幸運中獎！";
-            btn.innerText = "已提交成功";
-            btn.classList.remove('bg-gray-900');
-            btn.classList.add('bg-green-600');
+            btn.innerText = "提交完畢";
+            btn.className = "w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl cursor-default";
         } catch (error) {
-            status.innerText = "❌ 提交失敗，請檢查網路連線後再試。";
+            console.error(error);
+            status.innerText = "❌ 提交失敗，請檢查網路連線或稍後再試。";
             btn.disabled = false;
             btn.innerText = "重新提交參與抽獎";
         }
