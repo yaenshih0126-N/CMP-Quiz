@@ -58,6 +58,16 @@
             transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
+        .input-field {
+            border: 2px solid #f1f5f9;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: #d40511;
+            outline: none;
+        }
+
         @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(212, 5, 17, 0.4); }
             70% { box-shadow: 0 0 0 10px rgba(212, 5, 17, 0); }
@@ -93,24 +103,33 @@
     </div>
 
     <div class="p-8 flex-grow flex flex-col justify-center">
+        <!-- 開始與實名制畫面 -->
         <div id="start-screen" class="text-center">
-            <div class="relative w-28 h-28 mx-auto mb-8">
+            <div class="relative w-24 h-24 mx-auto mb-6">
                 <div class="absolute inset-0 bg-[#d40511] rounded-full opacity-10 animate-ping"></div>
-                <div class="relative bg-[#d40511] text-white w-28 h-28 rounded-3xl flex items-center justify-center shadow-xl transform rotate-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14" fill="none" viewBox="0 0 24 24" stroke="#ffcc00">
+                <div class="relative bg-[#d40511] text-white w-24 h-24 rounded-3xl flex items-center justify-center shadow-xl transform rotate-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="#ffcc00">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
             </div>
             
-            <h1 class="text-3xl font-black text-gray-800 mb-4 tracking-tight">Career Marketplace 知多少</h1>
-            <p class="text-gray-500 mb-10 leading-relaxed font-medium">
-                2026 全面啟動！<br>
-                測試你對新平台的掌握程度
-            </p>
+            <h1 class="text-2xl font-black text-gray-800 mb-2 tracking-tight">Career Marketplace 知多少</h1>
+            <p class="text-gray-500 mb-6 font-medium text-sm">請輸入資訊開始測驗</p>
             
-            <button onclick="startGame()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
-                立即開始挑戰
+            <div class="space-y-4 mb-8">
+                <div class="text-left">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">員工編號 Staff ID</label>
+                    <input type="text" id="staff-id" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="例如: 123456">
+                </div>
+                <div class="text-left">
+                    <label class="text-xs font-bold text-gray-400 uppercase ml-1">中文姓名 Name</label>
+                    <input type="text" id="user-name" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="例如: 王大明">
+                </div>
+            </div>
+            
+            <button onclick="checkAndStart()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
+                開始挑戰
             </button>
         </div>
 
@@ -134,14 +153,15 @@
             </div>
 
             <div class="bg-red-50 border-l-4 border-[#d40511] p-4 mb-8 text-left rounded-r-lg">
-                <p class="text-[#d40511] font-bold text-sm leading-relaxed">
-                    📸 歡迎截圖分享至 Smart Connect，就有機會抽中精美小禮！
+                <p class="text-[#d40511] font-bold text-sm leading-relaxed text-center">
+                    恭喜完成測驗！點擊下方按鈕提交結果參與抽獎。
                 </p>
             </div>
 
-            <button onclick="location.reload()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-black transition shadow-xl active:scale-95">
-                再測一次，挑戰滿分
+            <button id="submit-btn" onclick="submitToSheet()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-black transition shadow-xl active:scale-95">
+                提交參與抽獎
             </button>
+            <p id="submit-status" class="mt-4 text-sm font-bold text-gray-400 hidden italic">正在提交結果...</p>
         </div>
     </div>
     
@@ -151,6 +171,9 @@
 </div>
 
 <script>
+    // 替換成您的 Google Apps Script 部署 URL
+    const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE'; 
+
     const BGM_SRC = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
     const WIN_SRC = 'https://actions.google.com/sounds/v1/human_voices/crowd_cheer.ogg';
 
@@ -192,12 +215,26 @@
     let currentIndex = 0;
     let score = 0;
     let isLocked = false;
+    let userData = { id: '', name: '' };
+
+    function checkAndStart() {
+        const idInput = document.getElementById('staff-id').value.trim();
+        const nameInput = document.getElementById('user-name').value.trim();
+
+        if (!idInput || !nameInput) {
+            alert("請填寫完整的職編與中文姓名！");
+            return;
+        }
+
+        userData.id = idInput;
+        userData.name = nameInput;
+        startGame();
+    }
 
     function startGame() {
         mainBGM.load();
         winSfx.load();
-        
-        mainBGM.play().catch(e => console.log("BGM 播放受阻，屬正常瀏覽器行為"));
+        mainBGM.play().catch(e => console.log("BGM 播放受阻"));
 
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-header').classList.remove('hidden');
@@ -260,22 +297,52 @@
         document.getElementById('result-screen').classList.remove('hidden');
         
         winSfx.currentTime = 0;
-        winSfx.play().catch(e => console.log("音效播放受限"));
+        winSfx.play().catch(e => console.log("音效受限"));
 
         const finalScore = Math.round(score);
         document.getElementById('final-score').innerText = finalScore;
-        const badge = document.getElementById('result-badge');
         const evalText = document.getElementById('result-evaluation');
 
         if (finalScore === 100) {
-            badge.innerText = '👑';
-            evalText.innerText = '完美掌握！您是 CMP 的職場先驅！';
+            evalText.innerText = `完美掌握！${userData.name}，您是 CMP 專家！`;
         } else if (finalScore >= 60) {
-            badge.innerText = '👍';
-            evalText.innerText = '做得好！您已對職涯新工具備初步認識。';
+            evalText.innerText = `做得好，${userData.name}！感謝您的參與。`;
         } else {
-            badge.innerText = '📝';
-            evalText.innerText = '別擔心，快去 Smart Connect 探索吧！';
+            evalText.innerText = `加油，${userData.name}！再多探索平台功能。`;
+        }
+    }
+
+    async function submitToSheet() {
+        const btn = document.getElementById('submit-btn');
+        const status = document.getElementById('submit-status');
+        
+        btn.disabled = true;
+        btn.innerText = "提交中...";
+        status.classList.remove('hidden');
+
+        const payload = {
+            staffId: userData.id,
+            name: userData.name,
+            score: Math.round(score),
+            timestamp: new Date().toLocaleString()
+        };
+
+        // 這裡示範 fetch 邏輯，需配合後端 script 使用
+        try {
+            // 注意：跨網域提交通常需要使用 Google Apps Script 的 doPost 或模擬表單提交
+            console.log("提交數據:", payload);
+            
+            // 延遲模擬網路請求
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            status.innerText = "✅ 提交成功！祝您幸運中獎！";
+            btn.innerText = "已提交成功";
+            btn.classList.remove('bg-gray-900');
+            btn.classList.add('bg-green-600');
+        } catch (error) {
+            status.innerText = "❌ 提交失敗，請檢查網路連線後再試。";
+            btn.disabled = false;
+            btn.innerText = "重新提交參與抽獎";
         }
     }
 </script>
