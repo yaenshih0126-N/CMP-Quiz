@@ -103,7 +103,7 @@
     </div>
 
     <div class="p-8 flex-grow flex flex-col justify-center">
-        <!-- 開始與實名制畫面 -->
+        <!-- 開始與參與資訊畫面 -->
         <div id="start-screen" class="text-center">
             <div class="relative w-24 h-24 mx-auto mb-6">
                 <div class="absolute inset-0 bg-[#d40511] rounded-full opacity-10 animate-ping"></div>
@@ -115,17 +115,23 @@
             </div>
             
             <h1 class="text-2xl font-black text-gray-800 mb-2 tracking-tight">Career Marketplace 知多少</h1>
-            <p class="text-gray-500 mb-6 font-medium text-sm">請輸入資訊開始測驗</p>
+            <p class="text-gray-500 mb-2 font-medium text-xs">【內部活動】</p>
             
-            <div class="space-y-4 mb-8">
+            <div class="space-y-4 mb-4">
                 <div class="text-left">
                     <label class="text-xs font-bold text-gray-400 uppercase ml-1">員工編號 Staff ID</label>
-                    <input type="text" id="staff-id" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="例如: 123456">
+                    <input type="text" id="staff-id" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="請輸入您的員工編號">
                 </div>
                 <div class="text-left">
                     <label class="text-xs font-bold text-gray-400 uppercase ml-1">中文姓名 Name</label>
-                    <input type="text" id="user-name" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="例如: 王大明">
+                    <input type="text" id="user-name" class="input-field w-full p-4 rounded-xl mt-1 text-gray-700 font-bold" placeholder="請填寫您的姓名">
                 </div>
+            </div>
+
+            <div class="bg-gray-50 border border-gray-100 p-3 rounded-xl mb-6 text-left">
+                <p class="text-[10px] text-gray-400 leading-relaxed font-medium">
+                    <span class="text-gray-500 font-bold">隱私權申明：</span>本測驗收集之個人資訊僅限於抽獎使用，不供其他用途，收集之資訊會於活動結束後 60 天內刪除，謝謝！
+                </p>
             </div>
             
             <button onclick="checkAndStart()" class="w-full bg-[#d40511] text-white py-5 rounded-2xl font-black text-xl shadow-2xl hover:bg-[#b3040e] transition-all transform active:scale-95 btn-active-red">
@@ -145,44 +151,35 @@
         <div id="result-screen" class="hidden text-center">
             <div id="result-badge" class="text-7xl mb-4">🏆</div>
             <h2 class="text-3xl font-black text-gray-800 mb-2">測驗完成！</h2>
-            <p id="result-evaluation" class="text-gray-500 mb-6 font-medium">您的職涯掌握實力為</p>
+            <p id="result-evaluation" class="text-gray-500 mb-6 font-bold px-4">您的職涯掌握實力為</p>
             
             <div class="bg-yellow-50 rounded-[2.5rem] py-8 mb-6 border-4 border-[#ffcc00] shadow-inner">
                 <div id="final-score" class="text-7xl font-black text-[#d40511]">0</div>
                 <div class="text-yellow-600 font-bold text-sm uppercase mt-1 tracking-widest">Total Score</div>
             </div>
 
-            <div class="bg-red-50 border-l-4 border-[#d40511] p-4 mb-8 text-left rounded-r-lg">
-                <p class="text-[#d40511] font-bold text-sm leading-relaxed text-center">
-                    恭喜完成測驗！點擊下方按鈕提交結果參與抽獎。
-                </p>
-            </div>
-
             <button id="submit-btn" onclick="submitToSheet()" class="w-full bg-gray-900 text-white py-5 rounded-2xl font-black text-lg hover:bg-black transition shadow-xl active:scale-95">
-                提交參與抽獎
+                提交結果，獲得抽獎機會！
             </button>
-            <p id="submit-status" class="mt-4 text-sm font-bold text-gray-400 hidden italic">正在提交結果...</p>
+            <p id="submit-status" class="mt-4 text-sm font-bold text-gray-400 hidden italic">正在更新資料...</p>
         </div>
     </div>
     
     <div class="p-6 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.25em] border-t border-gray-50">
-        Career Marketplace • Future Ready
+        Internal Event • Future Ready
     </div>
 </div>
 
 <script>
-    // 已填入您提供的 Google Apps Script URL
     const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyypniyCvPAY-ooVH_UOBmEvr46yyK366Or1dZ4wS2vs4DQUf9CPCdUMYlSU1gvmM6g/exec'; 
 
-    const BGM_SRC = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+    const BGM_SRC = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3'; 
     const WIN_SRC = 'https://actions.google.com/sounds/v1/human_voices/crowd_cheer.ogg';
 
     const mainBGM = new Audio(BGM_SRC);
     const winSfx = new Audio(WIN_SRC);
-
     mainBGM.loop = true;
-    mainBGM.volume = 0.25;
-    winSfx.volume = 0.8;
+    mainBGM.volume = 0.2; 
 
     const quizData = [
         { 
@@ -202,12 +199,12 @@
         },
         { 
             q: "4. Career Marketplace 的登入方式是什麼？", 
-            o: ["A. 進到公司官網", "B. 透過 Smart Connect App 或網頁登入，在「應用程式」內", "C. 用社群帳號登入"], 
+            o: ["A. 進到 DHL 官網", "B. 透過 Smart Connect App 或網頁登入，在「應用程式」內", "C. 用社群帳號登入"], 
             a: 1 
         },
         { 
             q: "5. Career Marketplace 為同仁帶來的好處包括哪些？", 
-            o: ["A. 更高透明度", "B. 掌握職涯方向", "C. 探索與發展", "D. 以上皆是"], 
+            o: ["A. 更高職缺透明度", "B. 掌握職涯方向", "C. 探索與發展", "D. 以上皆是"], 
             a: 3 
         }
     ];
@@ -222,7 +219,7 @@
         const nameInput = document.getElementById('user-name').value.trim();
 
         if (!idInput || !nameInput) {
-            alert("請填寫完整的職編與中文姓名！");
+            alert("請填寫完成資訊以參與測驗。");
             return;
         }
 
@@ -232,10 +229,7 @@
     }
 
     function startGame() {
-        mainBGM.load();
-        winSfx.load();
-        mainBGM.play().catch(e => console.log("BGM 播放受阻"));
-
+        mainBGM.play().catch(e => console.log("Audio Error"));
         document.getElementById('start-screen').classList.add('hidden');
         document.getElementById('game-header').classList.remove('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
@@ -247,112 +241,87 @@
         const currentQ = quizData[currentIndex];
         document.getElementById('current-idx').innerText = currentIndex + 1;
         document.getElementById('question-text').innerText = currentQ.q;
-        
-        const progress = (currentIndex / quizData.length) * 100;
-        document.getElementById('progress-fill').style.width = `${progress}%`;
+        document.getElementById('progress-fill').style.width = `${(currentIndex / quizData.length) * 100}%`;
 
         const optionsGrid = document.getElementById('options-grid');
         optionsGrid.innerHTML = '';
-
         currentQ.o.forEach((option, index) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn w-full p-5 rounded-2xl text-left font-bold text-gray-700 bg-white shadow-sm';
             btn.innerText = option;
-            btn.onclick = () => checkAnswer(index, btn);
+            btn.onclick = () => {
+                if(isLocked) return;
+                isLocked = true;
+                const correct = quizData[currentIndex].a;
+                if(index === correct) {
+                    btn.classList.add('correct');
+                    score += 20;
+                } else {
+                    btn.classList.add('wrong');
+                    document.getElementById('app').classList.add('shake');
+                    setTimeout(() => document.getElementById('app').classList.remove('shake'), 400);
+                    document.querySelectorAll('.option-btn')[correct].classList.add('correct');
+                }
+                setTimeout(() => {
+                    currentIndex++;
+                    if (currentIndex < quizData.length) showQuestion();
+                    else showFinalResult();
+                }, 1000);
+            };
             optionsGrid.appendChild(btn);
         });
     }
 
-    function checkAnswer(selectedIndex, btn) {
-        if (isLocked) return;
-        isLocked = true;
-
-        const correctIndex = quizData[currentIndex].a;
-        if (selectedIndex === correctIndex) {
-            btn.classList.add('correct');
-            score += (100 / quizData.length);
-        } else {
-            btn.classList.add('wrong');
-            document.getElementById('app').classList.add('shake');
-            setTimeout(() => document.getElementById('app').classList.remove('shake'), 400);
-            document.querySelectorAll('.option-btn')[correctIndex].classList.add('correct');
-        }
-
-        setTimeout(() => {
-            currentIndex++;
-            if (currentIndex < quizData.length) {
-                showQuestion();
-            } else {
-                showFinalResult();
-            }
-        }, 1200);
-    }
-
     function showFinalResult() {
         mainBGM.pause();
-        mainBGM.currentTime = 0;
-        
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('game-header').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
         
-        winSfx.currentTime = 0;
-        winSfx.play().catch(e => console.log("音效受限"));
-
-        const finalScore = Math.round(score);
-        document.getElementById('final-score').innerText = finalScore;
         const evalText = document.getElementById('result-evaluation');
+        const badge = document.getElementById('result-badge');
 
-        if (finalScore === 100) {
-            evalText.innerText = `完美掌握！您是 CMP 專家！`;
-        } else if (finalScore >= 60) {
-            evalText.innerText = `做得好！感謝您的參與。`;
+        if (score === 100) {
+            evalText.innerText = "完美掌握！您簡直是 CMP 專家！";
+            badge.innerText = "🏆";
+        } else if (score >= 60) {
+            evalText.innerText = "做得好！您已對 CMP 具備初步認識。";
+            badge.innerText = "🌟";
         } else {
-            evalText.innerText = `加油！再多探索平台功能。`;
+            evalText.innerText = "別擔心，快登入 CMP 進行探索吧！";
+            badge.innerText = "💡";
         }
+
+        winSfx.play().catch(e => {});
     }
 
     async function submitToSheet() {
         const btn = document.getElementById('submit-btn');
         const status = document.getElementById('submit-status');
-        
         btn.disabled = true;
-        btn.innerText = "提交中...";
+        btn.innerText = "傳送中...";
         status.classList.remove('hidden');
 
-        const payload = {
-            staffId: userData.id,
-            name: userData.name,
-            score: Math.round(score),
-            timestamp: new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })
-        };
-
         try {
-            // 使用 fetch 發送 POST 請求
-            // mode: 'no-cors' 適合發送資料到 GAS，雖然拿不到回傳值但能確保資料送出
             await fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    staffId: userData.id,
+                    name: userData.name,
+                    score: score,
+                    timestamp: new Date().toLocaleString()
+                })
             });
-            
-            // 因為是 no-cors，我們假設只要 fetch 沒拋出例外就是成功
-            status.innerText = "✅ 提交成功！祝您幸運中獎！";
-            btn.innerText = "提交完畢";
-            btn.className = "w-full bg-green-600 text-white py-5 rounded-2xl font-black text-lg shadow-xl cursor-default";
+            status.innerText = "✅ 已成功傳送結果，謝謝參與！";
+            btn.innerText = "傳送完畢";
         } catch (error) {
-            console.error(error);
-            status.innerText = "❌ 提交失敗，請檢查網路連線或稍後再試。";
+            status.innerText = "❌ 傳送失敗，請重新嘗試。";
             btn.disabled = false;
-            btn.innerText = "重新提交參與抽獎";
         }
     }
 </script>
 
 </body>
 </html>
-
-
