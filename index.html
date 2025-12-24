@@ -34,10 +34,15 @@
             border: 2px solid #f1f5f9;
         }
 
-        .option-btn:hover:not(.correct):not(.wrong) {
+        .option-btn:hover:not(.correct):not(.wrong):not(.selected) {
             border-color: #ffcc00;
             background-color: #fffbeb;
             transform: scale(1.02);
+        }
+
+        .option-btn.selected {
+            border-color: #d40511;
+            background-color: #fff1f2;
         }
 
         .option-btn.correct {
@@ -145,7 +150,10 @@
                     載入中...
                 </h2>
             </div>
-            <div id="options-grid" class="space-y-4 mt-auto"></div>
+            <div id="options-grid" class="space-y-4"></div>
+            <div id="confirm-area" class="mt-8 h-16 flex items-center justify-center">
+                <!-- 確認按鈕會在此處出現 -->
+            </div>
         </div>
 
         <div id="result-screen" class="hidden text-center">
@@ -212,6 +220,7 @@
     let currentIndex = 0;
     let score = 0;
     let isLocked = false;
+    let tempSelectedIndex = null;
     let userData = { id: '', name: '' };
 
     function checkAndStart() {
@@ -238,10 +247,12 @@
 
     function showQuestion() {
         isLocked = false;
+        tempSelectedIndex = null;
         const currentQ = quizData[currentIndex];
         document.getElementById('current-idx').innerText = currentIndex + 1;
         document.getElementById('question-text').innerText = currentQ.q;
         document.getElementById('progress-fill').style.width = `${(currentIndex / quizData.length) * 100}%`;
+        document.getElementById('confirm-area').innerHTML = '';
 
         const optionsGrid = document.getElementById('options-grid');
         optionsGrid.innerHTML = '';
@@ -251,25 +262,55 @@
             btn.innerText = option;
             btn.onclick = () => {
                 if(isLocked) return;
-                isLocked = true;
-                const correct = quizData[currentIndex].a;
-                if(index === correct) {
-                    btn.classList.add('correct');
-                    score += 20;
-                } else {
-                    btn.classList.add('wrong');
-                    document.getElementById('app').classList.add('shake');
-                    setTimeout(() => document.getElementById('app').classList.remove('shake'), 400);
-                    document.querySelectorAll('.option-btn')[correct].classList.add('correct');
-                }
-                setTimeout(() => {
-                    currentIndex++;
-                    if (currentIndex < quizData.length) showQuestion();
-                    else showFinalResult();
-                }, 1000);
+                selectOption(index, btn);
             };
             optionsGrid.appendChild(btn);
         });
+    }
+
+    function selectOption(index, btnElement) {
+        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+        btnElement.classList.add('selected');
+        tempSelectedIndex = index;
+
+        const confirmArea = document.getElementById('confirm-area');
+        if (!confirmArea.querySelector('button')) {
+            confirmArea.innerHTML = `
+                <button onclick="confirmAnswer()" class="w-full bg-gray-800 text-white py-4 rounded-xl font-bold shadow-lg animate-bounce">
+                    確認送出答案
+                </button>
+            `;
+        }
+    }
+
+    function confirmAnswer() {
+        if (isLocked || tempSelectedIndex === null) return;
+        isLocked = true;
+        
+        const correct = quizData[currentIndex].a;
+        const allBtns = document.querySelectorAll('.option-btn');
+        const selectedBtn = allBtns[tempSelectedIndex];
+        
+        document.getElementById('confirm-area').innerHTML = '<p class="text-gray-400 font-bold italic">判定中...</p>';
+
+        if(tempSelectedIndex === correct) {
+            selectedBtn.classList.remove('selected');
+            selectedBtn.classList.add('correct');
+            score += 20;
+        } else {
+            selectedBtn.classList.remove('selected');
+            selectedBtn.classList.add('wrong');
+            document.getElementById('app').classList.add('shake');
+            setTimeout(() => document.getElementById('app').classList.remove('shake'), 400);
+            allBtns[correct].classList.add('correct');
+        }
+
+        // 修改為 2 秒停留時間
+        setTimeout(() => {
+            currentIndex++;
+            if (currentIndex < quizData.length) showQuestion();
+            else showFinalResult();
+        }, 2000);
     }
 
     function showFinalResult() {
